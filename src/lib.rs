@@ -32,6 +32,7 @@ mod proxy;
 mod rewind;
 
 pub mod certificate_authority;
+mod http_context;
 
 use futures::{Sink, SinkExt, Stream, StreamExt};
 use http::{Method};
@@ -56,6 +57,7 @@ pub use decoder::{decode_request, decode_response};
 pub use error::Error;
 pub use noop::*;
 pub use proxy::*;
+pub use crate::http_context::HttpContext;
 
 /// Enum representing either an HTTP request or response.
 #[derive(Debug)]
@@ -78,18 +80,18 @@ impl From<Response<Body>> for RequestOrResponse {
     }
 }
 
-/// Context for HTTP requests and responses.
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
-#[non_exhaustive]
-pub struct HttpContext {
-    /// Address of the client that is sending the request.
-    pub client_addr: SocketAddr,
-    pub request_uri: Uri,
-    pub request_method: Method,
-    pub content_type: Option<String>,
-    pub etag: Option<String>,
-    pub last_modified: Option<String>
-}
+// /// Context for HTTP requests and responses.
+// #[derive(Clone, Debug, Eq, Hash, PartialEq)]
+// #[non_exhaustive]
+// pub struct HttpContext {
+//     /// Address of the client that is sending the request.
+//     pub client_addr: SocketAddr,
+//     pub request_uri: Uri,
+//     pub request_method: Method,
+//     pub content_type: Option<String>,
+//     pub etag: Option<String>,
+//     pub last_modified: Option<String>
+// }
 
 /// Context for websocket messages.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]

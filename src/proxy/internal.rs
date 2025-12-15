@@ -87,28 +87,29 @@ where
     W: WebSocketHandler,
 {
     fn context<B: hyper::body::Body>(&self, req: &Request<B>) -> HttpContext {
-        let method = req.method().clone();
-        let uri = req.uri().clone();
-        let content_type = req.headers()
-        .get(CONTENT_TYPE)
-        .and_then(|c| c.to_str().ok()
-            .and_then(|c| Some(c.to_owned())));
-        let etag = req.headers()
-        .get(ETAG)
-        .and_then(|c| c.to_str().ok()
-            .and_then(|c| Some(c.to_owned())));
-        let last_modified = req.headers()
-        .get(LAST_MODIFIED)
-        .and_then(|c| c.to_str().ok()
-            .and_then(|c| Some(c.to_owned())));
-        HttpContext {
-            client_addr: self.client_addr,
-            request_method: method,
-            request_uri: uri,
-            content_type,
-            etag,
-            last_modified
-        }
+        HttpContext::from_request(req, self.client_addr)
+        // let method = req.method().clone();
+        // let uri = req.uri().clone();
+        // let content_type = req.headers()
+        // .get(CONTENT_TYPE)
+        // .and_then(|c| c.to_str().ok()
+        //     .and_then(|c| Some(c.to_owned())));
+        // let etag = req.headers()
+        // .get(ETAG)
+        // .and_then(|c| c.to_str().ok()
+        //     .and_then(|c| Some(c.to_owned())));
+        // let last_modified = req.headers()
+        // .get(LAST_MODIFIED)
+        // .and_then(|c| c.to_str().ok()
+        //     .and_then(|c| Some(c.to_owned())));
+        // HttpContext {
+        //     client_addr: self.client_addr,
+        //     request_method: method,
+        //     request_uri: uri,
+        //     content_type,
+        //     etag,
+        //     last_modified
+        // }
     }
 
     #[instrument(
