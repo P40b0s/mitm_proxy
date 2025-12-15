@@ -654,6 +654,8 @@ impl std::fmt::Display for HttpContext {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "HttpContext {{\n")?;
         write!(f, "  method: {},\n", self.request_method)?;
+        write!(f, "  content: {:?},\n", self.content_info.media_type)?;
+        write!(f, "  partial content: {},\n", self.is_partial_content())?;
         write!(f, "  path: {},\n", self.path)?;
         write!(f, "  category: {:?},\n", self.content_info.content_category)?;
         write!(f, "  streaming: {},\n", self.content_info.is_streaming)?;
