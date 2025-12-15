@@ -1,6 +1,6 @@
 use crate::Error;
 use futures::{Stream, TryStream, TryStreamExt};
-use http_body_util::{Collected, Empty, Full, StreamBody, combinators::BoxBody};
+use http_body_util::{BodyExt, Collected, Empty, Full, StreamBody, combinators::BoxBody};
 use hyper::{
     Request,
     Response,
@@ -28,6 +28,7 @@ impl Body {
     pub fn empty() -> Self {
         Self::from(Empty::new())
     }
+   
 
     pub fn from_stream<S>(stream: S) -> Self
     where

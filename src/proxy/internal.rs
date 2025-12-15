@@ -9,7 +9,7 @@ use crate::{
     rewind::Rewind,
 };
 use futures::{Sink, Stream, StreamExt};
-use http::uri::{Authority, Scheme};
+use http::{header::{CONTENT_TYPE, ETAG, LAST_MODIFIED}, uri::{Authority, Scheme}};
 use hyper::{
     Method,
     Request,
@@ -86,11 +86,28 @@ where
     H: HttpHandler,
     W: WebSocketHandler,
 {
-    fn context(&self, req_uri: &Uri, req_method: &Method) -> HttpContext {
+    fn context<B: hyper::body::Body>(&self, req: &Request<B>) -> HttpContext {
+        let method = req.method().clone();
+        let uri = req.uri().clone();
+        let content_type = req.headers()
+        .get(CONTENT_TYPE)
+        .and_then(|c| c.to_str().ok()
+            .and_then(|c| Some(c.to_owned())));
+        let etag = req.headers()
+        .get(ETAG)
+        .and_then(|c| c.to_str().ok()
+            .and_then(|c| Some(c.to_owned())));
+        let last_modified = req.headers()
+        .get(LAST_MODIFIED)
+        .and_then(|c| c.to_str().ok()
+            .and_then(|c| Some(c.to_owned())));
         HttpContext {
             client_addr: self.client_addr,
-            request_method: req_method.clone(),
-            request_uri: req_uri.clone()
+            request_method: method,
+            request_uri: uri,
+            content_type,
+            etag,
+            last_modified
         }
     }
 
@@ -107,7 +124,7 @@ where
         mut self,
         req: Request<Incoming>,
     ) -> Result<Response<Body>, Infallible> {
-        let ctx = self.context(req.uri(), req.method());
+        let ctx = self.context(&req);
 
         let req = match self
             .http_handler
@@ -169,7 +186,7 @@ where
 
                             if self
                                 .http_handler
-                                .should_intercept(&self.context(req.uri(), req.method()), &req)
+                                .should_intercept(&self.context(&req), &req)
                                 .await
                             {
                                 if buffer == *b"GET " {

@@ -85,7 +85,10 @@ pub struct HttpContext {
     /// Address of the client that is sending the request.
     pub client_addr: SocketAddr,
     pub request_uri: Uri,
-    pub request_method: Method
+    pub request_method: Method,
+    pub content_type: Option<String>,
+    pub etag: Option<String>,
+    pub last_modified: Option<String>
 }
 
 /// Context for websocket messages.
