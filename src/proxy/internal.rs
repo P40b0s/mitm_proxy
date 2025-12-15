@@ -86,9 +86,11 @@ where
     H: HttpHandler,
     W: WebSocketHandler,
 {
-    fn context(&self) -> HttpContext {
+    fn context(&self, req_uri: &Uri, req_method: &Method) -> HttpContext {
         HttpContext {
             client_addr: self.client_addr,
+            request_method: req_method.clone(),
+            request_uri: req_uri.clone()
         }
     }
 
@@ -105,7 +107,7 @@ where
         mut self,
         req: Request<Incoming>,
     ) -> Result<Response<Body>, Infallible> {
-        let ctx = self.context();
+        let ctx = self.context(req.uri(), req.method());
 
         let req = match self
             .http_handler
@@ -167,7 +169,7 @@ where
 
                             if self
                                 .http_handler
-                                .should_intercept(&self.context(), &req)
+                                .should_intercept(&self.context(req.uri(), req.method()), &req)
                                 .await
                             {
                                 if buffer == *b"GET " {

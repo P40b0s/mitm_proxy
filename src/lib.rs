@@ -34,6 +34,7 @@ mod rewind;
 pub mod certificate_authority;
 
 use futures::{Sink, SinkExt, Stream, StreamExt};
+use http::{Method};
 use hyper::{Request, Response, StatusCode, Uri};
 use std::net::SocketAddr;
 use tokio_tungstenite::tungstenite::{self, Message};
@@ -83,6 +84,8 @@ impl From<Response<Body>> for RequestOrResponse {
 pub struct HttpContext {
     /// Address of the client that is sending the request.
     pub client_addr: SocketAddr,
+    pub request_uri: Uri,
+    pub request_method: Method
 }
 
 /// Context for websocket messages.
