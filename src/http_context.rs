@@ -1,4 +1,4 @@
-use http::Request;
+use http::{Method, Request, Uri};
 use hyper::header::{
     HeaderMap, HeaderValue, 
     RANGE, IF_RANGE, IF_MODIFIED_SINCE, IF_NONE_MATCH, IF_MATCH, IF_UNMODIFIED_SINCE,
@@ -10,9 +10,12 @@ use chrono::{DateTime, ParseResult, Utc, format::{Parsed, StrftimeItems}};
 use std::{collections::HashMap, net::SocketAddr};
 
 #[derive(Clone)]
+///Context with request information
 pub struct HttpContext {
     // Common headers
     pub client_addr: SocketAddr,
+    pub method: Method,
+    pub uri: Uri,
     pub host: Option<String>,
     pub user_agent: Option<String>,
     pub accept: Option<String>,
@@ -119,12 +122,14 @@ impl std::fmt::Debug for RangeHeader {
 impl HttpContext {
     pub fn from_request<T>(req: &Request<T>, client_addr: SocketAddr) -> Self 
     {
-        Self::from_headers(req.headers(), client_addr)
+        Self::from_headers(req.headers(), client_addr, req.method().clone(), req.uri().clone())
     }
     
-    pub fn from_headers(headers: &HeaderMap, client_addr: SocketAddr) -> Self {
+    pub fn from_headers(headers: &HeaderMap, client_addr: SocketAddr, method: Method, uri: Uri) -> Self {
         let mut client_headers = HttpContext {
             client_addr,
+            method,
+            uri,
             host: get_header_str(headers, HOST),
             user_agent: get_header_str(headers, USER_AGENT),
             accept: get_header_str(headers, ACCEPT),
